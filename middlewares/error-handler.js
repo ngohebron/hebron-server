@@ -7,7 +7,8 @@ function errorHandler(err, req, res, next) {
       const is404 = err.toLowerCase().endsWith("not found");
       const statusCode = is404 ? 404 : 400;
      
-      sendResponse(res, statusCode, null, err);
+      // send the error object as the 5th parameter for consistency
+      sendResponse(res, statusCode, null, null, err);
       break;
     case err.name === "UnauthorizedError":
      
@@ -15,7 +16,8 @@ function errorHandler(err, req, res, next) {
       break;
     default:
     
-      sendResponse(res, 500, err.message, null);
+      // include the original error object for debugging (stack included in non-production environments)
+      sendResponse(res, 500, err.message, null, err);
       break;
   }
 }
