@@ -1,4 +1,4 @@
-const { sendResponse } = require("../_helpers/responseHelper");
+const { sendResponse } = require("../../_helpers/responseHelper");
 
 function errorHandler(err, req, res, next) {
   switch (true) {
