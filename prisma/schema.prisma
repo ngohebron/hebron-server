@@ -1,0 +1,27 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Event {
+  event_id   Int           @id @default(autoincrement())
+  title      String
+  description String?
+  output     String?
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+  images     EventImage[]
+}
+
+model EventImage {
+  image_id   Int      @id @default(autoincrement())
+  image_url  String
+  caption    String?
+  created_at DateTime @default(now())
+  event_id   Int
+  event      Event    @relation(fields: [event_id], references: [event_id], onDelete: Cascade)
+}
