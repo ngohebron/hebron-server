@@ -1,3 +1,4 @@
+import { decimal } from 'drizzle-orm/gel-core';
 import { int, mysqlTable, serial, varchar, text, timestamp, } from 'drizzle-orm/mysql-core';
 
 
@@ -30,6 +31,62 @@ export const event_images = mysqlTable("event_images", {
   caption: text("caption"),
 
   created_at: timestamp("created_at")
+    .defaultNow()
+    .notNull(),
+});
+
+export const donner = mysqlTable("donner", {
+  doner_id: int("doner_id").primaryKey().autoincrement(),
+
+  full_name: text("full_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+
+  created_at: timestamp("created_at")
+    .defaultNow()
+    .notNull(),
+});
+
+
+export const donation = mysqlTable("donation", {
+  donation_id: int("donation_id").primaryKey().autoincrement(),
+
+  donor_id: int("donor_id")
+    .notNull()
+    .references(() => donner.doner_id, { onDelete: "cascade" }),
+
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+
+  currency: text("currency").notNull(),
+  status: text("status").notNull(),
+
+  payment_gateway: text("payment_gateway"),
+  payment_order_id: text("payment_order_id"),
+  payment_txn_id: text("payment_txn_id"),
+
+  message: text("message"),
+
+  created_at: timestamp("created_at")
+    .defaultNow()
+    .notNull(),
+
+  updated_at: timestamp("updated_at")
+    .defaultNow()
+    .onUpdateNow()
+    .notNull(),
+});
+
+export const donation_receipts = mysqlTable("donation_receipts", {
+  receipt_id: int("receipt_id").primaryKey().autoincrement(),
+
+  donation_id: int("donation_id")
+    .notNull()
+    .references(() => donation.donation_id, { onDelete: "cascade" }),
+
+  receipt_number: text("receipt_number").notNull(),
+  receipt_url: text("receipt_url").notNull(),
+
+  issued_on: timestamp("issued_on")
     .defaultNow()
     .notNull(),
 });
