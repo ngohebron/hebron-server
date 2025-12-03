@@ -1,13 +1,13 @@
 const express = require("express");
 require("dotenv").config();
 const { connectToDatabase } = require("./_helpers/sqldb");
-const userRoutes = require("./routes/userRoutes");
+const index = require("./routes/index");
 const errorHandler = require("./middlewares/error-handler");
 
 const app = express();
 
 app.use(express.json());
-app.use("/api", userRoutes);
+app.use("/api", index);
 app.use(errorHandler);
 
 connectToDatabase();
