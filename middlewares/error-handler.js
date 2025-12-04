@@ -2,7 +2,7 @@ const { sendResponse } = require("../_helpers/responseHelper");
 const { extractDuplicateField } = require("../utils/error_utills");
 
 function errorHandler(err, req, res, next) {
-  console.log("Error Handler Triggered:", err.cause.sqlMessage);
+  console.log("Error Handler Triggered:", err);
 
   switch (true) {
     // ▶ CASE 1: Custom string error

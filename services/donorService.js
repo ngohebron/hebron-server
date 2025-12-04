@@ -1,3 +1,4 @@
+const { eq } = require("drizzle-orm");
 const { db } = require("../config/db.js");
 const { donner } = require("../drizzle/schema.js");
 
@@ -22,4 +23,10 @@ async function createDoner(req, res) {
     };
 }
 
-module.exports = { createDoner };
+
+async function getDonerByEmail(email){
+    const donnor = await db.select().from(donner).where(eq(donner.email, email)).limit(1);
+    return donnor[0] || null;
+}
+
+module.exports = { createDoner, getDonerByEmail };

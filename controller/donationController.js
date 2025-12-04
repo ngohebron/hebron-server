@@ -1,19 +1,34 @@
+const { sendResponse } = require("../_helpers/responseHelper");
+const donorService = require("../services/donorService");
 
-const { sendResponse } = require('../_helpers/responseHelper');
-const donorService = require('../services/donorService');
-
-
-async function createDonor(req, res,next) {
-    try{
-       const donation = await donorService.createDoner(req, res);
-       return sendResponse(res, 201, "Donor created", donation);
-    }catch(error){
-       
-        console.log("Error details:", error?.cause?.code);
-         next(error);
-        
-        
-    }
+async function createDonor(req, res, next) {
+  try {
+    const donation = await donorService.createDoner(req, res);
+    return sendResponse(res, 201, "Donor created", donation);
+  } catch (error) {
+    console.log("Error details:", error?.cause?.code);
+    next(error);
+  }
 }
 
-module.exports = { createDonor };
+async function getDonorByEmail(req, res, next) {
+  try {
+    const { email } = req.params;
+    const donor = await donorService.getDonerByEmail(email);
+    if (!donor) {
+      return sendResponse(
+        res,
+        404,
+        `Donor with email ${email} not found`,
+        null
+      );
+    }
+
+    return sendResponse(res, 200, "Donor fetched", donor);
+  } catch (error) {
+    console.log("Error details:", error);
+    next(error);
+  }
+}
+
+module.exports = { createDonor, getDonorByEmail };
