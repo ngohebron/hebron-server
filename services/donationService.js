@@ -2,42 +2,48 @@ const { eq } = require("drizzle-orm");
 const { db } = require("../config/db.js");
 const { donner, donation} = require("../drizzle/schema.js");
 const { DONATION_STATUS } = require("../utils/donation_utils.js");
+const razorpay = require("../config/razorpay.js");
 const donorService = require("./donorService.js");
 
 
-
-async function createDonation(req, res, next) {
+async function createDonation(donor_id, amount, currency = "INR", message) {
   try {
-    const { full_name, email, phone, amount, currency, message, payment_gateway } = req.body;
+      // 1️⃣ Create Razorpay order
+      const paymentOrder = await razorpay.orders.create({
+          amount: amount * 100, // convert rupees to paise
+          currency,
+          receipt: `donation_${Date.now()}`,
+          payment_capture: 1, // auto-capture
+      });
+      console.log("Razorpay Order Created:", paymentOrder);
 
-    // 1️⃣ Get or create donor
-    const donor = await donorService.getOrCreateDonor({ full_name, email, phone });
+      // 2️⃣ Insert donation into DB
+      const [result] = await db.insert(donation).values({
+          donor_id,
+          amount,
+          currency,
+          message,
+          status: DONATION_STATUS.PENDING,
+          payment_gateway: "RAZORPAY",
+          payment_order_id: paymentOrder.id,
+      });
 
-    // 2️⃣ Insert donation
-    const [result] = await db.insert(donation).values({
-      donor_id: donor.doner_id,
-      amount,
-      currency,
-      message,
-      payment_gateway,
-      status: DONATION_STATUS.CREATED
-    });
+      // 3️⃣ Fetch inserted donation
+      const [newDonation] = await db
+          .select()
+          .from(donation)
+          .where(eq(donation.donation_id, result.insertId))
+          .limit(1);
 
-    // 3️⃣ Fetch inserted donation
-    const [newDonation] = await db
-      .select()
-      .from(donation)
-      .where(eq(donation.donation_id, result.insertId))
-      .limit(1);
+      // ✅ Return both donation and payment order
+      return { newDonation, paymentOrder };
 
-    return newDonation;
   } catch (error) {
-    next(error);
+      console.log("Error in createDonation:", error);
+      throw error; // important to let controller handle it
   }
 }
 
-
 module.exports = {
     createDonation
-}
-
+};
