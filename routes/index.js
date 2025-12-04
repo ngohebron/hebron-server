@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const eventRoute = require('./eventRoutes');
 const donorRoute = require('./donorRoute');
+const donationRoute = require('./donationRoute');
 
 
 const defaultRoutes = [
@@ -12,6 +13,10 @@ const defaultRoutes = [
     {
       path:"/donor",
       route:donorRoute
+    },
+     {
+      path:"/donation",
+      route:donationRoute
     }
 ]
 
