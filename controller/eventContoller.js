@@ -25,4 +25,6 @@ async function createEventImage(req, res) {
     }
 }
 
+
+
 module.exports = { createEvent ,createEventImage};
