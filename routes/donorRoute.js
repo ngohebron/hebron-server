@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const donationController = require("../controller/donationController");
+const donationController = require("../controller/donorController");
 
 router.post("/createDonor",donationController.createDonor)
 router.get("/getAllDonors", donationController.getAllDonores);

@@ -38,6 +38,34 @@ async function getDonerByPhone(phone){
     return donnor[0] || null;
 }
 
+async function getOrCreateDonor({ full_name, email, phone }) {
+  // 1️⃣ Check if donor exists
+  const [existingDonor] = await db
+    .select()
+    .from(donner)
+    .where(eq(donner.email, email))
+    .limit(1);
+
+  if (existingDonor) {
+    return existingDonor; // use existing donor
+  }
+
+  // 2️⃣ Create new donor
+  const [result] = await db.insert(donner).values({
+    full_name,
+    email,
+    phone
+  });
+
+  const [newDonor] = await db
+    .select()
+    .from(donner)
+    .where(eq(donner.doner_id, result.insertId))
+    .limit(1);
+
+  return newDonor;
+}
 
 
-module.exports = { createDoner, getDonerByEmail, getAllDonors, getDonerByPhone };
+
+module.exports = { createDoner, getDonerByEmail, getAllDonors, getDonerByPhone, getOrCreateDonor };
