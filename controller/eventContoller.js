@@ -1,4 +1,5 @@
 const { sendResponse } = require('../_helpers/responseHelper');
+
 const eventService = require('../services/eventService');
 const eventImageService = require('../services/eventImageService');
 
@@ -25,6 +26,16 @@ async function createEventImage(req, res) {
     }
 }
 
+async function getAllEvents(req,res) {
+    try {
+
+        const eventsList = await eventService.getAllEvents(req,res)
+        return sendResponse(res, 200, "Events fetched", eventsList);
+    } catch (error) {
+        return sendResponse(res, 500, "Something went wrong", null, error);
+    }
+}
 
 
-module.exports = { createEvent ,createEventImage};
+
+module.exports = { createEvent ,createEventImage ,getAllEvents};

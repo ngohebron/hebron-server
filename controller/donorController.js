@@ -12,12 +12,12 @@ async function createDonor(req, res, next) {
   }
 }
 async function getAllDonores(req, res, next) {
-    try {
-        const donors = await donorService.getAllDonors();
-        return sendResponse(res, 200, "Donors fetched", donors);
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const donors = await donorService.getAllDonors();
+    return sendResponse(res, 200, "Donors fetched", donors);
+  } catch (error) {
+    next(error);
+  }
 }
 
 async function getDonorByEmail(req, res, next) {
