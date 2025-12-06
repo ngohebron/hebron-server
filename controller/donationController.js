@@ -40,6 +40,21 @@ async function createDonation(req, res, next) {
   }
 }
 
+async function verifyDonationPayment(req, res, next) {
+  try {
+    const paymentResult = await donationServices.verifyPayment(req.body);
+
+    if (paymentResult.success) {
+      return sendResponse(res, 200, "Payment verified successfully", paymentResult);
+    } else {
+      return sendResponse(res, 400, "Payment verification failed", paymentResult);
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
-    createDonation
+    createDonation,
+    verifyDonationPayment
 }
