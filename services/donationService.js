@@ -5,6 +5,11 @@ const { donner, donation } = require("../drizzle/schema.js");
 const { DONATION_STATUS } = require("../utils/donation_utils.js");
 const razorpay = require("../config/razorpay.js");
 const donorService = require("./donorService.js");
+const { donationListDTO } = require("../dto/donation.dto.js");
+
+
+
+
 
 async function createDonation(donor_id, amount, currency = "INR", message) {
   try {
@@ -75,7 +80,51 @@ async function verifyPayment(payment) {
   // 3️⃣
 }
 
+async function getAllDonations() {
+
+  const result = await db
+    .select({
+      donation_id: donation.donation_id,
+      amount: donation.amount,
+      currency: donation.currency,
+      message: donation.message,
+      created_at: donation.created_at,
+
+      
+      donor_id: donner.doner_id,
+      full_name: donner.full_name,
+      email: donner.email,
+      phone: donner.phone
+    })
+    .from(donation)
+    .leftJoin(donner, eq(donation.donor_id, donner.doner_id));
+
+    const formatted = donationListDTO(
+    result.map((row) => ({
+      donation_id: row.donation_id,
+      amount: row.amount,
+      currency: row.currency,
+      message: row.message,
+      created_at: row.created_at,
+      donor: {
+        donor_id: row.donor_id,
+        full_name: row.full_name,
+        email: row.email,
+        phone: row.phone
+      }
+    }))
+  );
+
+  return formatted;
+
+}
+
+
+
+
+
 module.exports = {
   createDonation,
   verifyPayment,
+  getAllDonations
 };
