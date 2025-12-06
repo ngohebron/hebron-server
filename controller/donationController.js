@@ -54,7 +54,17 @@ async function verifyDonationPayment(req, res, next) {
   }
 }
 
+async function getAllDonations(req, res) {
+  try {
+    const donations = await donationServices.getAllDonations();
+    return sendResponse(res, 200, "Donations retrieved successfully", donations);
+  } catch (error) {
+   return sendResponse(res, 500, "Something went wrong", null, error);
+  }
+}
+
 module.exports = {
     createDonation,
-    verifyDonationPayment
+    verifyDonationPayment,
+    getAllDonations
 }
