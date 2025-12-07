@@ -1,5 +1,5 @@
 import { decimal } from 'drizzle-orm/gel-core';
-import { int, mysqlTable, serial, varchar, text, timestamp, } from 'drizzle-orm/mysql-core';
+import { int, mysqlTable, serial, varchar, text, timestamp, date, } from 'drizzle-orm/mysql-core';
 
 
 
@@ -9,6 +9,7 @@ export const events = mysqlTable("events", {
   title: text("title").notNull(),
   description: text("description"),
   output: text("output"),
+  event_date: date("event_date"), 
 
   created_at: timestamp("created_at")
     .defaultNow()

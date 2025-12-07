@@ -1,4 +1,4 @@
-const { eq } = require("drizzle-orm");
+const { eq, desc } = require("drizzle-orm");
 
 const { db } = require("../config/db.js");
 const { events, event_images } = require("../drizzle/schema.js");
@@ -48,7 +48,7 @@ async function createEvent(payload) {
 }
 
 
- async function deleteEvent(eventId) {
+async function deleteEvent(eventId) {
   try {
     // 1️⃣ OPTIONAL: Check if event exists
     const event = await db.select().from(events).where(eq(events.event_id, eventId));
@@ -75,5 +75,22 @@ async function createEvent(payload) {
   }
 }
 
+async function getAllEvents() {
+  const allEvents = await db
+    .select()
+    .from(events)
+    .orderBy(desc(events.created_at));
 
-module.exports = { createEvent, deleteEvent };
+  for (const ev of allEvents) {
+    const imgs = await db
+      .select()
+      .from(event_images)
+      .where(eq(event_images.event_id, ev.event_id));
+
+    ev.images = imgs;
+  }
+
+  return allEvents;
+}
+
+module.exports = { createEvent, deleteEvent, getAllEvents};

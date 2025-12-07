@@ -40,7 +40,22 @@ async function deleteEvent(req, res) {
         return sendResponse(res, 500, "Something went wrong", null, error);
     }
 }
+async function getListOfEvents(req, res) { 
+    try {
+        const allEvents = await eventService.getAllEvents();
+
+        return sendResponse(
+            res,
+            200,
+            "Events retrieved successfully",
+            allEvents
+        );
+
+    } catch (error) {
+        console.error("Get All Events Error:", error);
+        return sendResponse(res, 500, "Something went wrong", null, error);
+    }
+}
 
 
-
-module.exports = { createEvent ,createEventImage,deleteEvent};
+module.exports = { createEvent ,createEventImage,deleteEvent,getListOfEvents};
