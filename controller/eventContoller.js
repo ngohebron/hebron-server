@@ -25,6 +25,22 @@ async function createEventImage(req, res) {
     }
 }
 
+async function deleteEvent(req, res) {
+    try {
+        
+        const { eventId } = req.params;
+        const result = await eventService.deleteEvent(eventId);
+
+        if (result.success) {
+            return sendResponse(res, 200, result.message);
+        } else {
+            return sendResponse(res, 404, result.message);
+        }
+    } catch (error) {
+        return sendResponse(res, 500, "Something went wrong", null, error);
+    }
+}
 
 
-module.exports = { createEvent ,createEventImage};
+
+module.exports = { createEvent ,createEventImage,deleteEvent};

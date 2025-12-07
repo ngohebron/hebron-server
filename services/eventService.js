@@ -1,3 +1,5 @@
+const { eq } = require("drizzle-orm");
+
 const { db } = require("../config/db.js");
 const { events, event_images } = require("../drizzle/schema.js");
 
@@ -46,4 +48,32 @@ async function createEvent(payload) {
 }
 
 
-module.exports = { createEvent };
+ async function deleteEvent(eventId) {
+  try {
+    // 1️⃣ OPTIONAL: Check if event exists
+    const event = await db.select().from(events).where(eq(events.event_id, eventId));
+
+    if (!event.length) {
+      return {
+        success: false,
+        message: "Event not found",
+      };
+    }
+
+    // 2️⃣ DELETE EVENT → Images auto-delete due to CASCADE
+    await db.delete(events).where(eq(events.event_id, eventId));
+
+    return {
+      success: true,
+      message: "Event deleted successfully",
+      deleted_event_id: eventId,
+    };
+
+  } catch (err) {
+    console.error("Error deleting event:", err);
+    throw new Error("Failed to delete event");
+  }
+}
+
+
+module.exports = { createEvent, deleteEvent };
