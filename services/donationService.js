@@ -1,4 +1,4 @@
-const { eq } = require("drizzle-orm");
+const { eq, or } = require("drizzle-orm");
 const { db } = require("../config/db.js");
 const crypto = require("crypto");
 const { donner, donation } = require("../drizzle/schema.js");
@@ -11,15 +11,18 @@ const { donationListDTO } = require("../dto/donation.dto.js");
 
 
 
+
+
 async function createDonation(donor_id, amount, currency = "INR", message) {
   try {
     // 1️⃣ Create Razorpay order
     const paymentOrder = await razorpay.orders.create({
-      amount: amount * 100, // convert rupees to paise
+      amount: amount * 100,
       currency,
       receipt: `donation_${Date.now()}`,
-      payment_capture: 1, // auto-capture
+      payment_capture: 1,
     });
+
     console.log("Razorpay Order Created:", paymentOrder);
 
     // 2️⃣ Insert donation into DB
@@ -33,20 +36,44 @@ async function createDonation(donor_id, amount, currency = "INR", message) {
       payment_order_id: paymentOrder.id,
     });
 
-    // 3️⃣ Fetch inserted donation
-    const [newDonation] = await db
+    // 3️⃣ Fetch required donor PAN card
+    const [donor] = await db
+      .select({
+        pancard_no: donner.pancard_no,
+        email: donner.email,
+        full_name: donner.full_name,
+        phone: donner.phone
+      })
+      .from(donner)
+      .where((
+        eq(donner.doner_id, donor_id)
+      ))
+      .limit(1);
+
+      const [newDonation] = await db
       .select()
       .from(donation)
       .where(eq(donation.donation_id, result.insertId))
       .limit(1);
 
-    // ✅ Return both donation and payment order
-    return { newDonation, paymentOrder };
+    // 4️⃣ Return only required fields
+    return {
+      donation_id: result.insertId,
+      payment_order_id: paymentOrder.id,
+      pancard_no: donor?.pancard_no || null,
+      email: donor?.email || null,
+      full_name: donor?.full_name || null,
+      phone: donor?.phone || null,
+      amount: newDonation.amount,
+      currency: newDonation.currency,
+    };
+
   } catch (error) {
     console.log("Error in createDonation:", error);
     throw error; // important to let controller handle it
   }
 }
+
 
 async function verifyPayment(payment) {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =

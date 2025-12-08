@@ -42,6 +42,7 @@ export const donner = mysqlTable("donner", {
   full_name: text("full_name").notNull(),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
+  pancard_no: text("pancard_no").notNull(),
 
   created_at: timestamp("created_at")
     .defaultNow()

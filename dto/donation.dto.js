@@ -15,10 +15,11 @@ const donor = donation.donner || donation.donor || {};
     updated_at:donation.updated_at,
 
     donor:{
-       id: donor.doner_id,
+      id: donor.doner_id,
       name: donor.full_name,
       email: donor.email,
-      phone: donor.phone
+      phone: donor.phone,
+      pancard_no: donor.pancard_no
     }
   }
 }

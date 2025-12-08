@@ -1,25 +1,27 @@
-const { eq } = require("drizzle-orm");
+const { eq, or } = require("drizzle-orm");
 const { db } = require("../config/db.js");
 const { donner } = require("../drizzle/schema.js");
 
 async function createDoner(req, res) {
-    const { full_name, email, phone } = req.body;
+    const { full_name, email, phone,pancard_no} = req.body;
 
-    if (!full_name || !email || !phone) {
-        throw new Error("Full name, email, and phone are required");
+    if (!full_name || !email || !phone || !pancard_no) {
+        throw new Error("Full name, email, phone, and pancard_no are required");
     }
 
     const doner = await db.insert(donner).values({
         full_name,
         email,
         phone,
+        pancard_no
     });
 
     return {
         insertedId: doner.insertId,
         full_name,
         email,
-        phone
+        phone,
+        pancard_no
     };
 }
 
@@ -37,33 +39,46 @@ async function getDonerByPhone(phone){
     const donnor = await db.select().from(donner).where(eq(donner.phone, phone)).limit(1);
     return donnor[0] || null;
 }
-
-async function getOrCreateDonor({ full_name, email, phone }) {
-  // 1️⃣ Check if donor exists
+async function getOrCreateDonor({ full_name, email, phone, pancard_no }) {
+  // Check existing donor by email OR phone OR pancard_no
   const [existingDonor] = await db
     .select()
     .from(donner)
-    .where(eq(donner.email, email))
+    .where(
+      or(
+        eq(donner.email, email),
+        eq(donner.phone, phone),
+        eq(donner.pancard_no, pancard_no)
+      )
+    )
     .limit(1);
 
   if (existingDonor) {
-    return existingDonor; // use existing donor
+    return existingDonor;
   }
 
-  // 2️⃣ Create new donor
-  const [result] = await db.insert(donner).values({
-    full_name,
-    email,
-    phone
-  });
+  try {
+    const [result] = await db.insert(donner).values({
+      full_name,
+      email,
+      phone,
+      pancard_no,
+    });
 
-  const [newDonor] = await db
-    .select()
-    .from(donner)
-    .where(eq(donner.doner_id, result.insertId))
-    .limit(1);
+    const [newDonor] = await db
+      .select()
+      .from(donner)
+      .where(eq(donner.doner_id, result.insertId))
+      .limit(1);
 
-  return newDonor;
+    return newDonor;
+  } catch (error) {
+    // Catch duplicate errors to avoid server crash
+    if (error.code === "ER_DUP_ENTRY") {
+      throw new Error("A donor with this email/phone/PAN already exists.");
+    }
+    throw error;
+  }
 }
 
 
