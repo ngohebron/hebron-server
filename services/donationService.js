@@ -1,4 +1,4 @@
-const { eq } = require("drizzle-orm");
+const { eq, sql } = require("drizzle-orm");
 const { db } = require("../config/db.js");
 const crypto = require("crypto");
 const { donner, donation } = require("../drizzle/schema.js");
@@ -80,7 +80,13 @@ async function verifyPayment(payment) {
   // 3️⃣
 }
 
-async function getAllDonations() {
+async function getAllDonations(page = 1) {
+
+  const limit = 50;
+  const offset = (page -1)* limit
+
+    const totalCountResult = await db.select({ count: sql`count(*)` }).from(donation);
+  const totalCount = Number(totalCountResult[0].count);
 
   const result = await db
     .select({
@@ -97,7 +103,10 @@ async function getAllDonations() {
       phone: donner.phone
     })
     .from(donation)
-    .leftJoin(donner, eq(donation.donor_id, donner.doner_id));
+    .leftJoin(donner, eq(donation.donor_id, donner.doner_id))
+    .limit(limit)
+    .offset(offset)
+    ;
 
     const formatted = donationListDTO(
     result.map((row) => ({
@@ -115,7 +124,12 @@ async function getAllDonations() {
     }))
   );
 
-  return formatted;
+  return {
+    data: formatted,
+    totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+    currentPage: page
+  };
 
 }
 
