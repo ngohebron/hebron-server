@@ -91,3 +91,10 @@ export const donation_receipts = mysqlTable("donation_receipts", {
     .defaultNow()
     .notNull(),
 });
+
+export const admin = mysqlTable("admin", {
+  id: int("id").primaryKey().autoincrement(),
+  email: varchar("email", { length: 255 }).notNull(),
+  password: varchar("password", { length: 255 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+});

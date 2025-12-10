@@ -1,3 +1,11 @@
+CREATE TABLE `admin` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`email` varchar(255) NOT NULL,
+	`password` varchar(255) NOT NULL,
+	`name` varchar(255) NOT NULL,
+	CONSTRAINT `admin_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
 CREATE TABLE `donation` (
 	`donation_id` int AUTO_INCREMENT NOT NULL,
 	`donor_id` int NOT NULL,
@@ -45,6 +53,7 @@ CREATE TABLE `events` (
 	`title` text NOT NULL,
 	`description` text,
 	`output` text,
+	`event_date` date,
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `events_event_id` PRIMARY KEY(`event_id`)

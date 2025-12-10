@@ -56,7 +56,9 @@ async function verifyDonationPayment(req, res, next) {
 
 async function getAllDonations(req, res) {
   try {
-    const donations = await donationServices.getAllDonations();
+
+    const page = Number(req.query.page) || 1;
+    const donations = await donationServices.getAllDonations(page);
     return sendResponse(res, 200, "Donations retrieved successfully", donations);
   } catch (error) {
    return sendResponse(res, 500, "Something went wrong", null, error);
