@@ -38,7 +38,8 @@ async function getDonerByPhone(phone){
     return donnor[0] || null;
 }
 
-async function getOrCreateDonor({ full_name, email, phone }) {
+async function getOrCreateDonor({ full_name, email, phone, pancard_no }) {
+  console.log("getOrCreateDonor called with:", { full_name, email, phone, pancard_no });
   // 1️⃣ Check if donor exists
   const [existingDonor] = await db
     .select()
@@ -54,7 +55,8 @@ async function getOrCreateDonor({ full_name, email, phone }) {
   const [result] = await db.insert(donner).values({
     full_name,
     email,
-    phone
+    phone,
+    pancard_no,
   });
 
   const [newDonor] = await db

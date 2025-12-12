@@ -17,10 +17,11 @@ const donorService = require("../services/donorService");
 
 async function createDonation(req, res, next) {
   try {
-    const { full_name, email, phone, amount, currency, message } = req.body;
+    console.log("createDonation called with body:", req.body);
+    const { full_name, email, phone, amount, pancard_no, currency, message } = req.body;
 
     // 1️⃣ Get or create donor
-    const donor = await donorService.getOrCreateDonor({ full_name, email, phone });
+    const donor = await donorService.getOrCreateDonor({ full_name, email, phone, pancard_no });
      console.log("Donor Info:", donor);
     // 2️⃣ Create donation order with Razorpay
     const { newDonation, paymentOrder } = await donationServices.createDonation(
