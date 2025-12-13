@@ -11,20 +11,28 @@ const { donationListDTO } = require("../dto/donation.dto.js");
 
 
 
-async function createDonation(donor_id, amount, currency = "INR", message) {
+async function createDonationService(donor, amount, currency = "INR", message) {
   try {
     // 1️⃣ Create Razorpay order
     const paymentOrder = await razorpay.orders.create({
       amount: amount * 100, // convert rupees to paise
       currency,
       receipt: `donation_${Date.now()}`,
-      payment_capture: 1, // auto-capture
-    });
+      payment_capture: 1,
+     notes: {
+    donor_name: donor.full_name,
+    donor_phone: donor.phone,
+    donor_email: donor.email,
+    pancard_no: donor.pancard_no
+  }// auto-capture
+    }
+  
+  );
     console.log("Razorpay Order Created:", paymentOrder);
 
     // 2️⃣ Insert donation into DB
     const [result] = await db.insert(donation).values({
-      donor_id,
+      donor_id: donor.doner_id,
       amount,
       currency,
       message,
@@ -138,7 +146,7 @@ async function getAllDonations(page = 1) {
 
 
 module.exports = {
-  createDonation,
+  createDonationService,
   verifyPayment,
   getAllDonations
 };
